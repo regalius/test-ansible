@@ -1,0 +1,27 @@
+---
+- name: Install dependencies package cgroups
+  shell: |
+    apt-get install cgroup-bin cgroup-lite libcgroup1
+
+- name: Copy file cgconfig script
+  copy: src=cgconfig.sh dest=/etc/init.d owner=root group=root mode=0775
+
+- name: Copy file cgrules conf 
+  template:
+    #  sample output  [user]root:[process_name]binaryname      [controllers]cpu,memory       [cgroup]tkpdlimit
+    user: "{{ item.user }}"
+    process_name: "{{ item.process_name }}"
+    controllers: "{{ item.controllers }}"
+    cgroup: "{{ item.cgroup }}"
+  with_items:
+    - { src: "cgrules.conf.j2", dest: "/etc/cgrules.conf" }
+
+- name: Copy file cgroup script
+  copy: src=setup-cgroup.sh  dest=/etc/cgroup-custom/setup-cgroup.sh owner=root group=root mode=0775
+
+- name: Execute cgroup script
+  shell: ./etc/cgroup-script/setup-cgroup.sh
+
+  
+    
+    
