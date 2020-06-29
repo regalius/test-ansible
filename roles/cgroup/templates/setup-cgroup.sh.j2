@@ -37,7 +37,7 @@ if [ $ENABLE_CGROUP = true ] && [ -n "$APP_NAME" ]; then
                 CPU_CFS_QUOTA=100000
                 # Set CPU quota / eval time as percentage of eval time * num of processor
                 NUM_OF_PROCESSOR=$(nproc)
-                CPU_CFS_PERIOD=$((CPU_HARD_LIMIT_PERCENT/100 * NUM_OF_PROCESSOR * CPU_CFS_QUOTA))
+                CPU_CFS_PERIOD=$((CPU_HARD_LIMIT_PERCENT * NUM_OF_PROCESSOR * CPU_CFS_QUOTA / 100))
                 echo "cpu.cfs_quota_us=$CPU_CFS_QUOTA"
                 echo "cpu.cfs_period_us=$CPU_CFS_PERIOD"
                 cgset -r cpu.cfs_quota_us=$CPU_CFS_QUOTA {{cgroup}}
