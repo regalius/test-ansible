@@ -1,24 +1,35 @@
 ---
 - name: Install dependencies package cgroups
-  shell: apt-get update && apt-get install cgroup-bin cgroup-lite libcgroup1
+  shell: apt-get update && apt-get install -yq cgroup-bin cgroup-lite libcgroup1
+  tags: [cgroup_setup]
 
 - name: Copy file cgconfig script
-  copy: src=files/cgconfig.sh dest=/etc/init.d owner={{ user }} group={{ user }} mode=0775
+  copy: src=files/cgconfig.sh dest=/etc/init.d owner=root group=root mode=0775
+  tags: [cgroup_setup]
 
 - name: Copy file cgrules conf
   template:
     src: "templates/cgrules.conf.j2"
     dest: "/etc/cgrules.conf"
-    owner: "{{ user }}"
+    owner: "root"
     mode: 0775
+  tags: [cgroup_setup]
 
-- name: Copy file cgroup script
-  template:
-    src: "templates/setup-cgroup.sh.j2"
-    dest: "/etc/setup-cgroup.sh"
-    owner: "{{ user }}"
-    mode: 0775
+- name: Download setup cgroup script
+  get_url: url="https://s3-ap-southeast-1.amazonaws.com/tokopedia-dpkg/autoscale/script/{{ item }}.sh" dest="/tmp/{{ item }}.sh" mode=0775
+  with_items:
+    - cgroup-setup
+  tags: [cgroup_setup,cgroup_update]
 
 - name: Execute cgroup script
-  shell: /etc/setup-cgroup.sh
-    
+  shell: 'bash /tmp/{{ item }}.sh > /var/log/cgroup-setup.log'
+  with_items:
+    - cgroup-setup
+  environment:
+    ENABLE_CGROUP: "true"
+    APP_NAME: "{{ app_name }}"
+    MEM_SOFT_LIMIT_PERCENT: "{{ cgroup_mem_soft_limit_percent | default('') }}"
+    MEM_HARD_LIMIT_PERCENT: "{{ cgroup_mem_hard_limit_percent | default('') }}"
+    CPU_SOFT_LIMIT_PERCENT: "{{ cgroup_cpu_soft_limit_percent | default('') }}"
+    CPU_HARD_LIMIT_PERCENT: "{{ cgroup_cpu_hard_limit_percent | default('') }}"
+  tags: [cgroup_setup,cgroup_update]

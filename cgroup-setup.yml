@@ -4,10 +4,10 @@
   remote_user: "vagrant"
   become: yes
   vars:
-    user: "vagrant"
     app_name: "r3"
-    process_name: "binaryapp"
-    controllers: "cpu,memory"
-    cgroup: "tkpdlimit"
+    cgroup_mem_hard_limit_percent: 60
+    cgroup_mem_soft_limit_percent: 30
+    cgroup_cpu_soft_limit_percent: 60
+    cgroup_cpu_hard_limit_percent: 60
   roles:
     - cgroup
