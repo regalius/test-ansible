@@ -1,0 +1,13 @@
+---
+- hosts: local
+  connection: local
+  remote_user: "vagrant"
+  become: yes
+  vars:
+    app_name: "r3"
+    cgroup_mem_hard_limit_percent: 60
+    cgroup_mem_soft_limit_percent: 30
+    cgroup_cpu_soft_limit_percent: 60
+    cgroup_cpu_hard_limit_percent: 60
+  roles:
+    - cgroup
