@@ -1,0 +1,24 @@
+---
+- name: Install dependencies package cgroups
+  shell: apt-get update && apt-get install cgroup-bin cgroup-lite libcgroup1
+
+- name: Copy file cgconfig script
+  copy: src=files/cgconfig.sh dest=/etc/init.d owner={{ user }} group={{ user }} mode=0775
+
+- name: Copy file cgrules conf
+  template:
+    src: "templates/cgrules.conf.j2"
+    dest: "/etc/cgrules.conf"
+    owner: "{{ user }}"
+    mode: 0775
+
+- name: Copy file cgroup script
+  template:
+    src: "templates/setup-cgroup.sh.j2"
+    dest: "/etc/setup-cgroup.sh"
+    owner: "{{ user }}"
+    mode: 0775
+
+- name: Execute cgroup script
+  shell: /etc/setup-cgroup.sh
+    
